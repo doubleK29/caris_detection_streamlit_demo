@@ -7,6 +7,20 @@ import shutil
 
 
 def tab2_scene(model):
+    st.markdown(
+        """
+    <style>
+        button[title^=Exit]+div [data-testid=stImage]{
+            text-align: center;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+        }
+    </style>
+    """,
+        unsafe_allow_html=True,
+    )
     # Upload folder of images
     upload_file = st.file_uploader(
         "Upload a zip file", type=["zip"], key="folder_upload"
