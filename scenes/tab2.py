@@ -4,6 +4,7 @@ import time
 import os
 from utils import extract_zip, create_zip_file
 import shutil
+from stqdm import stqdm
 
 
 def tab2_scene(model):
@@ -48,31 +49,20 @@ def tab2_scene(model):
 
             # Predict
             start_time = time.time()
-            model.predict(
-                source=folder_path,
-                imgsz=960,
-                save=True,
-                conf=0.4,
-                save_txt=False,
+            pbar = stqdm(
+                model.predict(
+                    source=folder_path,
+                    imgsz=960,
+                    save=True,
+                    conf=0.4,
+                    save_txt=False,
+                ),
+                desc="Predicting...",
             )
             running_time = round(time.time() - start_time, 2)
 
-            # Convert running time to 0.01-second intervals
-            total_intervals = int(running_time * 100)
-            # Progress bar
-            prg = st.progress(0)
-
-            for i in range(total_intervals):
-                # Perform your tasks here.
-                time.sleep(
-                    running_time / total_intervals
-                )  # Adjust the delay based on running_time.
-
-                # Calculate the percentage of completion
-                progress_percent = (i + 1) / total_intervals
-
-                # Update the progress bar with the calculated percentage
-                prg.progress(progress_percent)
+            for _ in pbar:
+                time.sleep(0.3)
 
             # Show predicted time
             st.success(f"Prediction finished in {round(running_time, 2)}s", icon="✅")

@@ -3,6 +3,7 @@ import cv2
 import time
 import numpy as np
 import os
+from stqdm import stqdm
 
 
 def tab1_scene(model):
@@ -57,15 +58,24 @@ def tab1_scene(model):
 
             # Predict
             start_time = time.time()
-            model.predict(
-                source=img_path,
-                imgsz=960,
-                save=True,
-                conf=0.4,
-                save_txt=False,
-                device="cpu",
+            pbar = stqdm(
+                model.predict(
+                    source=img_path,
+                    imgsz=960,
+                    save=True,
+                    conf=0.4,
+                    save_txt=False,
+                    device="cpu",
+                ),
+                desc="Predicting...",
             )
             running_time = time.time() - start_time  # Print predicted taken time
+
+            for _ in pbar:
+                time.sleep(0.5)
+
+            # Show predicted time
+            st.success(f"Prediction finished in {round(running_time, 2)}s", icon="✅")
 
             # Load image from runs/segment/predict# folder
             runs_folder = "runs/segment"
@@ -79,34 +89,6 @@ def tab1_scene(model):
                 runs_folder, f"predict{runs_lastest_num}", predicted_img_name
             )
             predicted_img = cv2.imread(predicted_img_path)
-
-            # Convert running time to 0.01-second intervals
-            total_intervals = int(running_time * 100)
-
-            # Progress bar
-            prg = st.progress(0)
-
-            for i in range(total_intervals):
-                time.sleep(
-                    running_time / total_intervals
-                )  # Adjust the delay based on running_time.
-
-                # Calculate the percentage of completion
-                progress_percent = (i + 1) / total_intervals
-
-                # Update the progress bar with the calculated percentage
-                prg.progress(progress_percent)
-
-            # Show predicted time
-            st.success(f"Prediction finished in {round(running_time, 2)}s", icon="✅")
-
-            # # Download single image
-            # # Convert to bytes before save
-            # with open(predicted_img_path, "rb") as f:
-            #     predicted_img_bytes = f.read()
-            # st.download_button(
-            #     "Download", data=predicted_img_bytes, file_name="predicted_img.jpg"
-            # )
 
             # Display images with grid size n_cols x n_rows
             n_cols = 2
